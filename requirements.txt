@@ -1,0 +1,6 @@
+mlx-whisper
+mlx-lm
+gradio<4
+urllib3<2
+faster-whisper
+llama-cpp-python

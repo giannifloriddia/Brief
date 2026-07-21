@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Model Management - UniWhisper</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary": "#131e8c",
+                        "error": "#ffb4ab",
+                        "secondary-container": "#39485a",
+                        "inverse-on-surface": "#283044",
+                        "on-primary-fixed": "#000767",
+                        "tertiary-fixed-dim": "#f7bd3e",
+                        "surface-dim": "#0b1326",
+                        "outline-variant": "#454653",
+                        "tertiary-container": "#c08d00",
+                        "on-error": "#690005",
+                        "on-background": "#dae2fd",
+                        "surface-variant": "#2d3449",
+                        "surface-bright": "#31394d",
+                        "surface-container-highest": "#2d3449",
+                        "outline": "#908f9e",
+                        "background": "#0b1326",
+                        "on-primary-fixed-variant": "#2f3aa3",
+                        "secondary": "#b9c8de",
+                        "on-secondary-fixed": "#0d1c2d",
+                        "on-surface": "#dae2fd",
+                        "inverse-surface": "#dae2fd",
+                        "on-secondary": "#233143",
+                        "surface-container-lowest": "#060e20",
+                        "on-tertiary-fixed": "#261900",
+                        "surface-container-low": "#131b2e",
+                        "on-tertiary": "#402d00",
+                        "secondary-fixed-dim": "#b9c8de",
+                        "surface": "#0b1326",
+                        "on-tertiary-container": "#3e2b00",
+                        "on-primary-container": "#101b8a",
+                        "surface-container-high": "#222a3d",
+                        "error-container": "#93000a",
+                        "secondary-fixed": "#d4e4fa",
+                        "primary-container": "#818cf8",
+                        "surface-container": "#171f33",
+                        "on-error-container": "#ffdad6",
+                        "on-tertiary-fixed-variant": "#5d4200",
+                        "on-secondary-fixed-variant": "#39485a",
+                        "inverse-primary": "#4953bc",
+                        "primary": "#bdc2ff",
+                        "on-surface-variant": "#c6c5d5",
+                        "tertiary": "#f7bd3e",
+                        "on-secondary-container": "#a7b6cc",
+                        "tertiary-fixed": "#ffdea3",
+                        "surface-tint": "#bdc2ff",
+                        "primary-fixed": "#e0e0ff",
+                        "primary-fixed-dim": "#bdc2ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "stack-sm": "8px",
+                        "stack-md": "16px",
+                        "stack-lg": "32px",
+                        "container-padding-desktop": "32px",
+                        "container-padding-mobile": "16px",
+                        "gutter": "24px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Geist"],
+                        "body-md": ["Geist"],
+                        "display-lg": ["Geist"],
+                        "body-sm": ["Geist"],
+                        "label-md": ["JetBrains Mono"],
+                        "headline-lg-mobile": ["Geist"],
+                        "title-md": ["Geist"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "26px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "title-md": ["18px", { "lineHeight": "24px", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md min-h-screen flex overflow-x-hidden">
+<!-- SideNavBar -->
+<nav class="hidden md:flex bg-surface-container dark:bg-surface-container text-primary dark:text-primary font-body-md text-body-md h-screen w-64 fixed left-0 top-0 border-r border-outline-variant dark:border-outline-variant flex-col py-stack-md z-50">
+<div class="px-container-padding-mobile mb-stack-lg">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary dark:text-primary mb-1">UniWhisper</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Local-first Research</p>
+</div>
+<div class="px-container-padding-mobile mb-stack-md">
+<button class="w-full py-2 px-4 bg-primary text-on-primary rounded font-label-md text-label-md flex items-center justify-center gap-2 hover:bg-primary-fixed transition-colors">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                New Transcription
+            </button>
+</div>
+<ul class="flex-1 px-container-padding-mobile space-y-1">
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="home">home</span>
+                    Home
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="record_voice_over">record_voice_over</span>
+                    Lectures
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="school">school</span>
+                    Courses
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="settings">settings</span>
+                    Settings
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 text-primary dark:text-primary bg-secondary-container dark:bg-secondary-container border-l-2 border-primary opacity-80 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[20px] icon-fill" data-icon="neurology">neurology</span>
+                    Models
+                </a>
+</li>
+</ul>
+<div class="px-container-padding-mobile mt-auto">
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="menu_book">menu_book</span>
+                Documentation
+            </a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 md:ml-64 flex flex-col min-h-screen">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-surface text-primary dark:text-primary font-title-md text-title-md fixed top-0 right-0 w-full md:w-[calc(100%-16rem)] border-b border-outline-variant dark:border-outline-variant flex justify-between items-center px-container-padding-mobile md:px-container-padding-desktop h-16 z-40">
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+<input class="bg-surface-container-low border border-outline-variant text-on-surface font-body-sm text-body-sm rounded pl-10 pr-4 py-1.5 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-64 placeholder-on-surface-variant" placeholder="Search..." type="text"/>
+</div>
+<h2 class="md:hidden font-headline-lg-mobile text-headline-lg-mobile font-semibold text-on-surface dark:text-on-surface">UniWhisper</h2>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 text-on-surface-variant">
+<button class="p-1.5 rounded-full hover:bg-surface-container-high hover:text-primary transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]" data-icon="memory">memory</span>
+</button>
+<button class="p-1.5 rounded-full hover:bg-surface-container-high hover:text-primary transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]" data-icon="cloud_off">cloud_off</span>
+</button>
+<button class="p-1.5 rounded-full hover:bg-surface-container-high hover:text-primary transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]" data-icon="notifications">notifications</span>
+</button>
+</div>
+<button class="hidden sm:block py-1 px-4 border border-outline-variant text-on-surface-variant rounded font-label-md text-label-md hover:border-primary hover:text-primary transition-colors">
+                    Export
+                </button>
+<div class="w-8 h-8 rounded-full bg-surface-variant overflow-hidden border border-outline-variant">
+<img alt="Researcher Avatar" class="w-full h-full object-cover" data-alt="A small, professional avatar portrait of a researcher in a dark, moody environment with subtle neon blue backlighting. Modern, clean aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBTA91-DHJwBfLzSCTzMAJZwuItMgnRLPu4OfEHeK4mCU6z62BJR3lH83vFZgSqnldvUW3CBpXaM-Q3-rb3uoGSBzX6pbwWXz5yrmYkm2kE2dP3vuUHft-DP3TDNXbRhox7G86vYKwu2lGDaQz-5GYZIWbRWHNr8QPJ432oALbQZnJAQ_r9SdrKz6hfOzTHG7qhDOG183sKEYAR9O3Nn0AI-AU2BS-GVYd0HL161l-A0Ky9PDTXTjUAMA"/>
+</div>
+</div>
+</header>
+<!-- Canvas -->
+<main class="flex-1 mt-16 pb-20 md:pb-16 px-container-padding-mobile md:px-container-padding-desktop pt-stack-lg max-w-[1280px] w-full mx-auto">
+<div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-stack-lg gap-4">
+<div>
+<h2 class="font-headline-lg text-headline-lg md:font-display-lg md:text-display-lg text-on-surface mb-2">Model Management</h2>
+<p class="text-on-surface-variant font-body-md text-body-md">Manage local execution models for transcription and analysis.</p>
+</div>
+<button class="bg-surface-container-low border border-outline-variant text-on-surface py-2 px-4 rounded flex items-center gap-2 hover:bg-surface-container-high transition-colors font-label-md text-label-md">
+<span class="material-symbols-outlined text-[18px]">sync</span>
+                    Check for Updates
+                </button>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Models List Section -->
+<div class="lg:col-span-8 flex flex-col gap-stack-md">
+<!-- Model Card Active -->
+<div class="bg-surface-container-low border border-outline-variant rounded-lg p-stack-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary"></div>
+<div class="flex items-start gap-4">
+<div class="w-12 h-12 rounded bg-surface-variant border border-outline-variant flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px] text-primary">graphic_eq</span>
+</div>
+<div>
+<div class="flex items-center gap-2 mb-1">
+<h3 class="font-title-md text-title-md text-on-surface">Whisper v3 Large</h3>
+<span class="bg-[rgba(129,140,248,0.1)] text-primary font-label-md text-label-md px-2 py-0.5 rounded border border-[rgba(129,140,248,0.2)]">ACTIVE</span>
+</div>
+<p class="text-on-surface-variant font-body-sm text-body-sm max-w-md">Highest accuracy transcription model. Recommended for complex lectures and multi-speaker environments.</p>
+<div class="flex items-center gap-4 mt-3 text-on-surface-variant font-label-md text-label-md">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">hard_drive_2</span> 2.9 GB</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">memory</span> ~8GB RAM</span>
+</div>
+</div>
+</div>
+<div class="flex sm:flex-col gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+<button class="flex-1 sm:flex-none border border-outline-variant text-error py-1.5 px-4 rounded font-label-md text-label-md hover:bg-[rgba(255,180,171,0.1)] transition-colors">Uninstall</button>
+</div>
+</div>
+<!-- Model Card Installed -->
+<div class="bg-surface-container-low border border-outline-variant rounded-lg p-stack-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+<div class="flex items-start gap-4">
+<div class="w-12 h-12 rounded bg-surface-variant border border-outline-variant flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px] text-on-surface-variant">graphic_eq</span>
+</div>
+<div>
+<div class="flex items-center gap-2 mb-1">
+<h3 class="font-title-md text-title-md text-on-surface">Whisper v3 Base</h3>
+<span class="bg-surface-variant text-on-surface-variant font-label-md text-label-md px-2 py-0.5 rounded border border-outline-variant">INSTALLED</span>
+</div>
+<p class="text-on-surface-variant font-body-sm text-body-sm max-w-md">Faster execution with lower resource requirements. Good for clear, single-speaker audio.</p>
+<div class="flex items-center gap-4 mt-3 text-on-surface-variant font-label-md text-label-md">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">hard_drive_2</span> 142 MB</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">memory</span> ~1GB RAM</span>
+</div>
+</div>
+</div>
+<div class="flex sm:flex-col gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+<button class="flex-1 sm:flex-none bg-surface-container-high text-on-surface py-1.5 px-4 rounded font-label-md text-label-md hover:bg-surface-bright border border-outline-variant transition-colors">Activate</button>
+<button class="flex-1 sm:flex-none text-on-surface-variant py-1.5 px-4 font-label-md text-label-md hover:text-error transition-colors text-center">Remove</button>
+</div>
+</div>
+<!-- Model Card Available -->
+<div class="bg-surface-container-lowest border border-outline-variant border-dashed rounded-lg p-stack-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 opacity-70 hover:opacity-100 transition-opacity">
+<div class="flex items-start gap-4">
+<div class="w-12 h-12 rounded bg-surface-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px] text-on-surface-variant">neurology</span>
+</div>
+<div>
+<div class="flex items-center gap-2 mb-1">
+<h3 class="font-title-md text-title-md text-on-surface">Gemma 2B IT</h3>
+</div>
+<p class="text-on-surface-variant font-body-sm text-body-sm max-w-md">LLM for local summarization and insight generation from transcriptions.</p>
+<div class="flex items-center gap-4 mt-3 text-on-surface-variant font-label-md text-label-md">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">hard_drive_2</span> 1.8 GB</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">cloud_download</span> Download</span>
+</div>
+</div>
+</div>
+<div class="flex w-full sm:w-auto mt-2 sm:mt-0">
+<button class="w-full sm:w-auto bg-primary text-on-primary py-1.5 px-4 rounded font-label-md text-label-md hover:bg-primary-fixed transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[16px]">download</span>
+                                Install
+                            </button>
+</div>
+</div>
+</div>
+<!-- Right Sidebar Widgets -->
+<div class="lg:col-span-4 flex flex-col gap-stack-md mt-stack-md lg:mt-0">
+<!-- Storage Widget -->
+<div class="bg-surface-container-low border border-outline-variant rounded-lg p-stack-md">
+<h3 class="font-title-md text-title-md text-on-surface mb-stack-md flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">storage</span>
+                            Local Storage
+                        </h3>
+<div class="mb-4">
+<div class="flex justify-between font-label-md text-label-md mb-2">
+<span class="text-on-surface-variant">Used: 3.04 GB</span>
+<span class="text-on-surface">Free: 45.2 GB</span>
+</div>
+<div class="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden flex">
+<div class="h-full bg-primary" style="width: 15%"></div>
+<div class="h-full bg-secondary-container" style="width: 5%"></div>
+</div>
+</div>
+<ul class="space-y-3 pt-3 border-t border-slate-800">
+<li class="flex justify-between items-center font-body-sm text-body-sm">
+<div class="flex items-center gap-2 text-on-surface">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+                                    Active Models
+                                </div>
+<span class="text-on-surface-variant">2.9 GB</span>
+</li>
+<li class="flex justify-between items-center font-body-sm text-body-sm">
+<div class="flex items-center gap-2 text-on-surface">
+<span class="w-2 h-2 rounded-full bg-secondary-container"></span>
+                                    Cached Weights
+                                </div>
+<span class="text-on-surface-variant">142 MB</span>
+</li>
+</ul>
+</div>
+<!-- Environment Info -->
+<div class="bg-surface-container-low border border-outline-variant rounded-lg p-stack-md">
+<h3 class="font-title-md text-title-md text-on-surface mb-stack-sm">Execution Environment</h3>
+<p class="text-on-surface-variant font-body-sm text-body-sm mb-4">Hardware acceleration status for local inference.</p>
+<div class="space-y-2">
+<div class="flex justify-between items-center bg-surface-container-highest px-3 py-2 rounded border border-outline-variant">
+<span class="font-label-md text-label-md text-on-surface-variant">Backend</span>
+<span class="font-label-md text-label-md text-primary">whisper.cpp</span>
+</div>
+<div class="flex justify-between items-center bg-surface-container-highest px-3 py-2 rounded border border-outline-variant">
+<span class="font-label-md text-label-md text-on-surface-variant">Acceleration</span>
+<span class="font-label-md text-label-md text-tertiary">Metal (Apple Silicon)</span>
+</div>
+<div class="flex justify-between items-center bg-surface-container-highest px-3 py-2 rounded border border-outline-variant">
+<span class="font-label-md text-label-md text-on-surface-variant">Threads</span>
+<span class="font-label-md text-label-md text-on-surface">4 / 8</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest dark:bg-surface-container-lowest text-secondary dark:text-secondary font-label-md text-label-md fixed bottom-0 right-0 w-full md:w-[calc(100%-16rem)] border-t border-outline-variant dark:border-outline-variant transition-opacity duration-200 flex justify-between items-center px-container-padding-mobile md:px-container-padding-desktop py-stack-sm z-40 hidden sm:flex">
+<div class="font-label-md text-label-md text-on-surface">v1.2.0-alpha • Local Engine: whisper-cpp-v3</div>
+<div class="flex gap-4">
+<a class="text-on-surface-variant hover:text-on-surface dark:hover:text-on-surface transition-colors" href="#">Processing Guide</a>
+<a class="text-on-surface-variant hover:text-on-surface dark:hover:text-on-surface transition-colors" href="#">Privacy Policy</a>
+<a class="text-on-surface-variant hover:text-on-surface dark:hover:text-on-surface transition-colors" href="#">Security Audit</a>
+</div>
+</footer>
+</div>
+<!-- Mobile Bottom Navigation (Visible only on small screens) -->
+<div class="md:hidden fixed bottom-0 left-0 w-full bg-surface border-t border-outline-variant flex justify-around items-center py-2 z-50 pb-safe">
+<a class="flex flex-col items-center p-2 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined text-[24px]">home</span>
+</a>
+<a class="flex flex-col items-center p-2 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined text-[24px]">record_voice_over</span>
+</a>
+<a class="flex flex-col items-center p-2 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined text-[24px]">school</span>
+</a>
+<a class="flex flex-col items-center p-2 text-primary bg-secondary-container rounded-full px-4" href="#">
+<span class="material-symbols-outlined text-[24px] icon-fill">neurology</span>
+</a>
+</div>
+</body></html>

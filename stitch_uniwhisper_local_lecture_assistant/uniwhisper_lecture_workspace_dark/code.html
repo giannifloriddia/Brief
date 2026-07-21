@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Workspace - UniWhisper</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary": "#131e8c",
+                        "error": "#ffb4ab",
+                        "secondary-container": "#39485a",
+                        "inverse-on-surface": "#283044",
+                        "on-primary-fixed": "#000767",
+                        "tertiary-fixed-dim": "#f7bd3e",
+                        "surface-dim": "#0b1326",
+                        "outline-variant": "#454653",
+                        "tertiary-container": "#c08d00",
+                        "on-error": "#690005",
+                        "on-background": "#dae2fd",
+                        "surface-variant": "#2d3449",
+                        "surface-bright": "#31394d",
+                        "surface-container-highest": "#2d3449",
+                        "outline": "#908f9e",
+                        "background": "#0b1326",
+                        "on-primary-fixed-variant": "#2f3aa3",
+                        "secondary": "#b9c8de",
+                        "on-secondary-fixed": "#0d1c2d",
+                        "on-surface": "#dae2fd",
+                        "inverse-surface": "#dae2fd",
+                        "on-secondary": "#233143",
+                        "surface-container-lowest": "#060e20",
+                        "on-tertiary-fixed": "#261900",
+                        "surface-container-low": "#131b2e",
+                        "on-tertiary": "#402d00",
+                        "secondary-fixed-dim": "#b9c8de",
+                        "surface": "#0b1326",
+                        "on-tertiary-container": "#3e2b00",
+                        "on-primary-container": "#101b8a",
+                        "surface-container-high": "#222a3d",
+                        "error-container": "#93000a",
+                        "secondary-fixed": "#d4e4fa",
+                        "primary-container": "#818cf8",
+                        "surface-container": "#171f33",
+                        "on-error-container": "#ffdad6",
+                        "on-tertiary-fixed-variant": "#5d4200",
+                        "on-secondary-fixed-variant": "#39485a",
+                        "inverse-primary": "#4953bc",
+                        "primary": "#bdc2ff",
+                        "on-surface-variant": "#c6c5d5",
+                        "tertiary": "#f7bd3e",
+                        "on-secondary-container": "#a7b6cc",
+                        "tertiary-fixed": "#ffdea3",
+                        "surface-tint": "#bdc2ff",
+                        "primary-fixed": "#e0e0ff",
+                        "primary-fixed-dim": "#bdc2ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "stack-sm": "8px",
+                        "stack-md": "16px",
+                        "stack-lg": "32px",
+                        "container-padding-desktop": "32px",
+                        "container-padding-mobile": "16px",
+                        "gutter": "24px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Geist"],
+                        "body-md": ["Geist"],
+                        "display-lg": ["Geist"],
+                        "body-sm": ["Geist"],
+                        "label-md": ["JetBrains Mono"],
+                        "headline-lg-mobile": ["Geist"],
+                        "title-md": ["Geist"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "26px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "title-md": ["18px", { "lineHeight": "24px", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-surface');
+        }
+        
+        /* Custom Scrollbar for Workspace */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: theme('colors.surface-container-high');
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: theme('colors.outline-variant');
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md min-h-screen flex overflow-hidden">
+<!-- SideNavBar (Shared Component) -->
+<nav class="bg-surface-container dark:bg-surface-container h-screen w-64 fixed left-0 top-0 border-r border-outline-variant dark:border-outline-variant flex flex-col py-stack-md z-50">
+<!-- Header -->
+<div class="px-6 mb-8 flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined" data-icon="neurology">neurology</span>
+</div>
+<div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary dark:text-primary">UniWhisper</h1>
+<p class="font-label-md text-label-md text-on-surface-variant">Local-first Research</p>
+</div>
+</div>
+<!-- CTA Button -->
+<div class="px-6 mb-8">
+<button class="w-full bg-primary text-on-primary py-2.5 px-4 rounded-lg font-title-md text-title-md font-medium flex items-center justify-center gap-2 hover:bg-primary-fixed-dim transition-colors">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+                New Transcription
+            </button>
+</div>
+<!-- Main Navigation -->
+<div class="flex-1 px-4 flex flex-col gap-1 overflow-y-auto">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-title-md text-title-md">Home</span>
+</a>
+<!-- Active State -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary dark:text-primary bg-secondary-container dark:bg-secondary-container border-l-2 border-primary opacity-80 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="record_voice_over">record_voice_over</span>
+<span class="font-title-md text-title-md">Lectures</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="school">school</span>
+<span class="font-title-md text-title-md">Courses</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-title-md text-title-md">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="neurology">neurology</span>
+<span class="font-title-md text-title-md">Models</span>
+</a>
+</div>
+<!-- Footer Navigation -->
+<div class="mt-auto px-4 pt-4 border-t border-outline-variant">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+<span class="font-title-md text-title-md">Documentation</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="ml-64 flex-1 flex flex-col h-screen relative">
+<!-- TopAppBar (Shared Component) -->
+<header class="bg-surface dark:bg-surface fixed top-0 right-0 w-[calc(100%-16rem)] border-b border-outline-variant dark:border-outline-variant flex justify-between items-center px-container-padding-desktop h-16 z-40">
+<div class="flex items-center gap-4">
+<h2 class="font-title-md text-title-md text-primary dark:text-primary font-bold">Workspace</h2>
+<div class="h-4 w-[1px] bg-outline-variant"></div>
+<div class="flex items-center bg-surface-container-low border border-outline-variant rounded-lg px-3 py-1.5 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
+<span class="material-symbols-outlined text-on-surface-variant mr-2" data-icon="search">search</span>
+<input class="bg-transparent border-none text-sm focus:ring-0 text-on-surface placeholder-on-surface-variant w-64 outline-none" placeholder="Search transcript..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center w-10 h-10 rounded-full hover:bg-surface-container-high">
+<span class="material-symbols-outlined" data-icon="memory">memory</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center w-10 h-10 rounded-full hover:bg-surface-container-high">
+<span class="material-symbols-outlined" data-icon="cloud_off">cloud_off</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center w-10 h-10 rounded-full hover:bg-surface-container-high">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<div class="h-6 w-[1px] bg-outline-variant mx-2"></div>
+<button class="bg-surface-container-high hover:bg-surface-variant text-primary border border-outline-variant px-4 py-2 rounded-lg font-title-md text-title-md flex items-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="download">download</span>
+                    Export
+                </button>
+<img alt="Researcher Avatar" class="w-8 h-8 rounded-full border border-outline-variant ml-2 object-cover" data-alt="A small, circular avatar portrait of a researcher in a dark, professional academic setting with moody blue lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZxEjnTgc58fFkDKz3QfrojtHn9U49uz2hww9Mv9CXcVFBtTb5QizQg2c-Cxt60xbpdLKroE_cACUwYpcUbxUaQPoLLtgRS_Oju2faVDfjcwRlSJFC84MYPgbDIuuIm_QbCFD7UemTwsZ7DUvbgwSJfbc8RAgKMwickHNVsP97sUCSuzGO9KdpBmcWDt-HmfGgAo0Vbl22vsP3Qi6YJOM49YeLed2nsmb3crihoT8iYzUrhmj4qSCXPA"/>
+</div>
+</header>
+<!-- Workspace Layout -->
+<div class="flex-1 mt-16 flex h-[calc(100vh-64px)]">
+<!-- Transcript Canvas -->
+<div class="flex-1 bg-background overflow-y-auto p-container-padding-desktop">
+<div class="max-w-4xl mx-auto">
+<!-- Meta Header -->
+<div class="mb-12">
+<div class="flex items-center gap-3 mb-4">
+<span class="bg-primary-container/10 text-primary px-3 py-1 rounded-full font-label-md text-label-md border border-primary/20">NEURO-101</span>
+<span class="text-on-surface-variant font-label-md text-label-md flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="calendar_today">calendar_today</span>
+                                Oct 24, 2023
+                            </span>
+<span class="text-on-surface-variant font-label-md text-label-md flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="schedule">schedule</span>
+                                1h 45m
+                            </span>
+<span class="text-on-surface-variant font-label-md text-label-md flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="language">language</span>
+                                pt-PT
+                            </span>
+</div>
+<h1 class="font-display-lg text-display-lg text-on-surface mb-4">Introdução à Neurociência Cognitiva</h1>
+<p class="font-title-md text-title-md text-on-surface-variant">Prof. Dr. Miguel Santos • Faculdade de Medicina da Universidade de Lisboa</p>
+</div>
+<!-- Transcript Content (Bento Style Blocks) -->
+<div class="space-y-6">
+<div class="bg-surface-container-low border border-outline-variant p-6 rounded-xl relative group">
+<div class="absolute -left-3 top-6 w-1 h-12 bg-primary rounded-r-md hidden group-hover:block transition-all"></div>
+<div class="flex items-start gap-4">
+<div class="font-label-md text-label-md text-primary mt-1 shrink-0 w-16">00:00:15</div>
+<div class="font-body-md text-body-md text-on-surface leading-relaxed">
+                                    Bom dia a todos. Vamos dar início à nossa primeira aula de Neurociência Cognitiva. Antes de entrarmos nos mecanismos específicos de plasticidade sináptica que constam no programa de hoje, gostava de enquadrar brevemente a evolução histórica desta disciplina.
+                                </div>
+</div>
+</div>
+<div class="bg-surface-container-low border border-outline-variant p-6 rounded-xl relative group">
+<div class="absolute -left-3 top-6 w-1 h-12 bg-primary rounded-r-md hidden group-hover:block transition-all"></div>
+<div class="flex items-start gap-4">
+<div class="font-label-md text-label-md text-primary mt-1 shrink-0 w-16">00:02:30</div>
+<div class="font-body-md text-body-md text-on-surface leading-relaxed">
+                                    Como sabem, o cérebro humano, com os seus oitenta e seis mil milhões de neurónios, não é um sistema estático. A premissa fundamental que orientará todo o nosso semestre é a de que a arquitetura neural é continuamente esculpida pela experiência.
+                                </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Assistant Side Panel -->
+<div class="w-96 bg-surface-container-low border-l border-outline-variant flex flex-col">
+<div class="p-4 border-b border-outline-variant flex justify-between items-center bg-surface">
+<div class="flex items-center gap-2 text-on-surface">
+<span class="material-symbols-outlined text-primary" data-icon="robot_2">robot_2</span>
+<h3 class="font-title-md text-title-md">Research Assistant</h3>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface">
+<span class="material-symbols-outlined" data-icon="more_horiz">more_horiz</span>
+</button>
+</div>
+<div class="flex-1 p-4 overflow-y-auto space-y-4">
+<div class="bg-surface-container p-4 rounded-lg border border-outline-variant">
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-2">System analyzing context...</p>
+<div class="flex flex-wrap gap-2">
+<span class="px-2 py-1 bg-surface-variant text-on-surface rounded font-label-md text-label-md border border-outline-variant">Summary</span>
+<span class="px-2 py-1 bg-surface-variant text-on-surface rounded font-label-md text-label-md border border-outline-variant">Key Terms</span>
+</div>
+</div>
+</div>
+<div class="p-4 border-t border-outline-variant bg-surface">
+<div class="relative">
+<textarea class="w-full bg-surface-container border border-outline-variant rounded-lg p-3 text-on-surface font-body-sm text-body-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none resize-none" placeholder="Ask about this lecture..." rows="2"></textarea>
+<button class="absolute bottom-3 right-3 text-primary bg-primary-container/10 p-1 rounded hover:bg-primary-container/30 transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="send">send</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>
