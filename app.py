@@ -299,4 +299,4 @@ with gr.Blocks(title="UniWhisper", css=custom_css, theme=gr.themes.Base()) as ap
             delete_btn.click(fn=delete_model, inputs=model_to_delete, outputs=[model_to_delete, models_display])
 
 if __name__ == "__main__":
-    app.launch()
+    app.queue().launch()
