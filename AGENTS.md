@@ -1,10 +1,10 @@
-# UniWhisper
+# Brief
 
 An open-source, fully local lecture transcription app for university students, professors, and researchers.
 
 ## Product vision
 
-UniWhisper is a cross-platform desktop and mobile app focused on turning long university lectures into clean transcripts and useful study summaries, without sending data to the cloud.
+Brief is a cross-platform desktop and mobile app focused on turning long university lectures into clean transcripts and useful study summaries, without sending data to the cloud.
 
 The app should be simple: upload audio, transcribe locally with Whisper, then summarize locally with Gemma or another selected model, and export everything cleanly.
 
@@ -260,7 +260,7 @@ The app should be simple: upload audio, transcribe locally with Whisper, then su
 
 ## Example user flow
 
-1. Student in Lisbon opens UniWhisper on a Mac with M-series chip.
+1. Student in Lisbon opens Brief on a Mac with M-series chip.
 2. Clicks “Download models” and selects European Portuguese and English.
 3. App recommends MLX backend for Whisper and Gemma.
 4. User uploads a 90-minute lecture recording in European Portuguese.
@@ -270,7 +270,7 @@ The app should be simple: upload audio, transcribe locally with Whisper, then su
 
 ## Positioning
 
-UniWhisper should feel like the **MacWhisper** experience, but built around university learning: longer lectures, study summaries, exam preparation, and local privacy by design. MacWhisper is known for local transcription on Mac, while Plaud-style workflows emphasize transcripts plus structured AI summaries, which matches your desired direction for lecture notes and study support [web:6][web:3][web:10].
+Brief should feel like the **MacWhisper** experience, but built around university learning: longer lectures, study summaries, exam preparation, and local privacy by design. MacWhisper is known for local transcription on Mac, while Plaud-style workflows emphasize transcripts plus structured AI summaries, which matches your desired direction for lecture notes and study support [web:6][web:3][web:10].
 
 ## Recommended stack
 

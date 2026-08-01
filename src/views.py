@@ -205,7 +205,7 @@ h1.page-title {
 
 def create_ui():
     components = {}
-    with gr.Blocks(title="UniWhisper", css=custom_css, theme=nocturnal_theme) as app:
+    with gr.Blocks(title="Brief", css=custom_css, theme=nocturnal_theme) as app:
         
         with gr.Row(elem_classes="main-layout"):
             
@@ -215,7 +215,7 @@ def create_ui():
                 <div class="brand-header">
                     <div class="icon">🧠</div>
                     <div>
-                        <h2>UniWhisper</h2>
+                        <h2>Brief</h2>
                         <p>Local-first Research</p>
                     </div>
                 </div>
@@ -261,7 +261,7 @@ def create_ui():
                     
                     with gr.Accordion("⚙️ Global Settings & Vault Config", open=False, elem_classes="accordion"):
                         with gr.Row():
-                            components["export_dir_input"] = gr.Textbox(label="Export Directory (Obsidian Vault)", value="~/Desktop/Eu/UniWhisper_Notes", scale=3)
+                            components["export_dir_input"] = gr.Textbox(label="Export Directory (Obsidian Vault)", value="~/Desktop/Eu/Brief_Notes", scale=3)
                             components["subject_dropdown"] = gr.Dropdown(label="Subject (Vault Folder)", choices=["(Root)"], value="(Root)", scale=2)
                             components["refresh_subjects_btn"] = gr.Button("🔄 Refresh", scale=1)
                             

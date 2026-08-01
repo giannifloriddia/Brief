@@ -1,10 +1,10 @@
-# UniWhisper
+# Brief
 
 An open-source, fully local lecture transcription app for university students, professors, and researchers.
 
 ## 🌟 Product Vision
 
-UniWhisper is a cross-platform desktop and mobile app focused on turning long university lectures into clean transcripts and useful study summaries, without sending data to the cloud. 
+Brief is a cross-platform desktop and mobile app focused on turning long university lectures into clean transcripts and useful study summaries, without sending data to the cloud. 
 
 The app should be simple: upload audio, transcribe locally with Whisper, then summarize locally with Gemma or another selected model, and export everything cleanly.
 
@@ -57,8 +57,8 @@ The app should be simple: upload audio, transcribe locally with Whisper, then su
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/UniWhisper.git
-   cd UniWhisper
+   git clone https://github.com/yourusername/Brief.git
+   cd Brief
    ```
 2. Setup environment (example for Python backend components):
    ```bash

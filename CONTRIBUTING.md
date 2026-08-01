@@ -1,6 +1,6 @@
-# Contributing to UniWhisper
+# Contributing to Brief
 
-First off, thank you for considering contributing to UniWhisper! It's people like you that make UniWhisper a great tool for students and researchers.
+First off, thank you for considering contributing to Brief! It's people like you that make Brief a great tool for students and researchers.
 
 ## Code of Conduct
 
@@ -16,7 +16,7 @@ By participating in this project, you are expected to uphold a welcoming and inc
 ### Suggesting Enhancements
 
 - Open a new issue with a clear title and a detailed description of the suggested enhancement.
-- Explain why this enhancement would be useful to most UniWhisper users.
+- Explain why this enhancement would be useful to most Brief users.
 
 ### Pull Requests
 
