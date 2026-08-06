@@ -24,3 +24,8 @@ dist-ssr
 *.sw?
 
 venv/
+/gradlew.bat
+/gradlew
+/gradle.properties
+/build/
+/.gradle/

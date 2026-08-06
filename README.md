@@ -45,27 +45,26 @@ The app should be simple: upload audio, transcribe locally with Whisper, then su
 
 ## 🛠️ Recommended Architecture & Stack
 
-- **App Language:** Kotlin Multiplatform (not yet implemented).
-- **UI:** Shared logic with platform-native UI where needed.
-- **Speech Model:** Whisper or Whisper-compatible models, with MLX support on Apple Silicon.
-- **Summary Model:** Gemma 4 or similar compact LLM, with MLX support where available/Ollama models access.
+- **App Language:** Kotlin with Compose Multiplatform (Desktop MVP currently implemented).
+- **UI:** Jetpack Compose for Desktop.
+- **Speech Model:** Whisper or Whisper-compatible models, with MLX support on Apple Silicon (via subprocess bindings).
+- **Summary Model:** Gemma 4 or similar compact LLM, with MLX support where available / Ollama models access.
 - **Storage:** Local encrypted database plus file-based exports.
 
 ## 💻 Building Locally
-
-*(Instructions will be expanded as the implementation progresses)*
 
 1. Clone the repository:
    ```bash
    git clone https://github.com/yourusername/Brief.git
    cd Brief
    ```
-2. Setup environment (example for Python backend components):
+2. Run the application via Gradle:
    ```bash
-   python3 -m venv venv
-   source venv/bin/activate
-   pip install -r requirements.txt
-   python3 app.py
+   ./gradlew run
+   ```
+3. To package the application as a standalone `.jar` or native installer (e.g. `.dmg` on macOS, `.msi` on Windows):
+   ```bash
+   ./gradlew packageDistributionForCurrentOS
    ```
 
 ## 🤝 Contributing
