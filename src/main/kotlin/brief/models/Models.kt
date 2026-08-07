@@ -2,7 +2,6 @@ package brief.models
 
 import java.io.File
 import java.net.HttpURLConnection
-import java.net.URL
 import com.google.gson.JsonParser
 
 object Models {
@@ -27,7 +26,7 @@ object Models {
 
     fun fetchOllamaModels(): List<String> {
         try {
-            val url = URL("http://localhost:11434/api/tags")
+            val url = java.net.URI("http://localhost:11434/api/tags").toURL()
             val connection = url.openConnection() as HttpURLConnection
             connection.requestMethod = "GET"
             connection.connectTimeout = 1000

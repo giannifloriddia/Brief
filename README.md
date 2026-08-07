@@ -14,58 +14,78 @@ The app should be simple: upload audio, transcribe locally with Whisper, then su
 - **Lecture focused:** Optimized for classes, seminars, office hours, and research talks.
 - **One app only:** No web dependency, no cloud lock-in, no separate companion services.
 - **Open source:** Transparent architecture, model choices, and privacy behavior.
-- **Cross-platform:** One codebase that runs on macOS, Windows, Linux, Android, and iOS where technically possible.
-- **European language first:** Optimized for European languages and variants (e.g., European Portuguese) before global coverage.
-- **Flexible inference:** Support MLX and other local backends, with clear separation between transcription and summarization steps.
+- **Cross-platform:** One codebase that runs on macOS, Windows, Linux.
+- **European language first:** Optimized for European languages and variants (e.g., European Portuguese).
+- **Flexible inference:** Support MLX and other local backends.
 
-## 🚀 Features
+---
 
-### Audio Input
-- Upload audio files in common formats (MP3, WAV, M4A, AAC, FLAC, OGG).
-- Drag and drop support.
-- Background processing for uninterrupted device usage.
+## 🛠️ Prerequisites for Building Locally
 
-### Transcription (Whisper-first)
-- Fully local transcription using downloadable Whisper models.
-- Auto language detection optimized for European languages first.
-- Strong support for European language variants (pt-PT, es-ES, en-GB, etc.).
-- Punctuation, paragraph restoration, and timestamps.
-- Optional speaker diarization for lecture Q&A.
+To build Brief from scratch, you will need the following installed on your machine:
 
-### Summarization & Study Support (Gemma)
-- One-click summary generation after transcription using local LLMs like Gemma 4.
-- Multiple summary formats: short summary, detailed class notes, bullet points, exam revision sheets.
-- Generate flashcards, quizzes, and term glossaries.
-- Local Q&A about the lecture content.
+1. **Java Development Kit (JDK) 21**
+   - **Mac:** `brew install openjdk@21`
+   - **Windows:** Download from [Adoptium](https://adoptium.net/) or use `winget install Microsoft.OpenJDK.21`
+   - **Linux:** `sudo apt install openjdk-21-jdk`
+2. **Python 3.10+**
+   - **Mac:** `brew install python`
+   - **Windows:** Download from [Python.org](https://python.org)
+   - **Linux:** `sudo apt install python3 python3-pip python3-venv`
+3. **Git**
+   - Needed to clone the repository.
 
-### Privacy & Control
-- No forced accounts, no cloud upload, no telemetry by default.
-- Offline mode by default.
-- User can delete all local data instantly.
+---
 
-## 🛠️ Recommended Architecture & Stack
+## 💻 Step-by-Step Build Guide
 
-- **App Language:** Kotlin with Compose Multiplatform (Desktop MVP currently implemented).
-- **UI:** Jetpack Compose for Desktop.
-- **Speech Model:** Whisper or Whisper-compatible models, with MLX support on Apple Silicon (via subprocess bindings).
-- **Summary Model:** Gemma 4 or similar compact LLM, with MLX support where available / Ollama models access.
-- **Storage:** Local encrypted database plus file-based exports.
+### 1. Clone the repository
+```bash
+git clone https://github.com/yourusername/Brief.git
+cd Brief
+```
 
-## 💻 Building Locally
+### 2. Setup the Python ML Engine (Required)
+Brief relies on a Python bridge for local MLX and Whisper inference. You **must** create a Python Virtual Environment at the root of the project before running.
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/Brief.git
-   cd Brief
-   ```
-2. Run the application via Gradle:
-   ```bash
-   ./gradlew run
-   ```
-3. To package the application as a standalone `.jar` or native installer (e.g. `.dmg` on macOS, `.msi` on Windows):
-   ```bash
-   ./gradlew packageDistributionForCurrentOS
-   ```
+**Mac / Linux:**
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install -r legacy_python/requirements.txt
+```
+
+**Windows:**
+```powershell
+python -m venv venv
+.\venv\Scripts\activate
+pip install -r legacy_python/requirements.txt
+```
+
+### 3. Run the App Locally (Development)
+You can run the app instantly via Gradle:
+```bash
+# On Mac/Linux
+./gradlew run
+
+# On Windows
+gradlew.bat run
+```
+
+### 4. Build Standalone Installers (.app, .dmg, .exe, .msi, .deb)
+To package Brief into a native installer for your current operating system, run:
+```bash
+# On Mac/Linux
+./gradlew packageDistributionForCurrentOS
+
+# On Windows
+gradlew.bat packageDistributionForCurrentOS
+```
+Once the build completes, your standalone installer (e.g., `Brief.dmg` on Mac or `Brief.msi` on Windows) will be located inside the `build/compose/binaries/main/` folder!
+
+**Good News:** The build system is now fully automated to bundle your localized Python environment directly into the generated installer. Your `.dmg` or `.exe` will be a true standalone application that you can distribute anywhere without requiring users to install Python!
+
+---
 
 ## 🤝 Contributing
 

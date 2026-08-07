@@ -21,16 +21,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import brief.controllers.AppController
 import brief.models.Models
+import brief.models.Preferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.awt.FileDialog
 import java.awt.Frame
@@ -57,7 +57,9 @@ fun ModernDropdown(
     options: List<String>,
     selectedOption: String,
     onOptionSelected: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    optionLabel: (String) -> String = { it }
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -67,14 +69,14 @@ fun ModernDropdown(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(10.dp))
-                .background(ThemeColors.Background)
+                .background(if (enabled) ThemeColors.Background else ThemeColors.SurfaceVariant)
                 .border(1.dp, if (expanded) ThemeColors.Primary else ThemeColors.Border, RoundedCornerShape(10.dp))
-                .clickable { expanded = true }
+                .then(if (enabled) Modifier.clickable { expanded = true } else Modifier)
                 .padding(horizontal = 16.dp, vertical = 14.dp)
         ) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = selectedOption.ifEmpty { "Select..." }, 
+                    text = if (selectedOption.isNotEmpty()) optionLabel(selectedOption) else "Select...", 
                     color = ThemeColors.TextMain, 
                     fontSize = 14.sp, 
                     maxLines = 1,
@@ -94,7 +96,7 @@ fun ModernDropdown(
                         onOptionSelected(option)
                         expanded = false
                     }) {
-                        Text(option, color = ThemeColors.TextMain)
+                        Text(optionLabel(option), color = ThemeColors.TextMain)
                     }
                 }
             }
@@ -108,7 +110,8 @@ fun FilePickerInput(
     value: String,
     onValueChange: (String) -> Unit,
     isDirectory: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) {
     Column(modifier = modifier) {
         Text(label, color = ThemeColors.TextMuted, fontSize = 12.sp, modifier = Modifier.padding(bottom = 4.dp, start = 4.dp))
@@ -116,7 +119,7 @@ fun FilePickerInput(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(10.dp))
-                .background(ThemeColors.Background)
+                .background(if (enabled) ThemeColors.Background else ThemeColors.SurfaceVariant)
                 .border(1.dp, ThemeColors.Border, RoundedCornerShape(10.dp))
                 .padding(end = 4.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -124,7 +127,8 @@ fun FilePickerInput(
             BasicTextField(
                 value = value,
                 onValueChange = onValueChange,
-                textStyle = androidx.compose.ui.text.TextStyle(color = ThemeColors.TextMain, fontSize = 14.sp),
+                enabled = enabled,
+                textStyle = androidx.compose.ui.text.TextStyle(color = if (enabled) ThemeColors.TextMain else ThemeColors.TextMuted, fontSize = 14.sp),
                 modifier = Modifier.weight(1f).padding(horizontal = 16.dp, vertical = 14.dp),
                 singleLine = true
             )
@@ -142,6 +146,7 @@ fun FilePickerInput(
                         onValueChange(File(dialog.directory, dialog.file).absolutePath)
                     }
                 },
+                enabled = enabled,
                 colors = ButtonDefaults.buttonColors(backgroundColor = ThemeColors.SurfaceVariant, contentColor = ThemeColors.TextMain),
                 shape = RoundedCornerShape(6.dp),
                 modifier = Modifier.height(36.dp),
@@ -166,6 +171,12 @@ fun AppUI(controller: AppController, coroutineScope: CoroutineScope) {
         )
     ) {
         var currentTab by remember { mutableStateOf("Studio") }
+        
+        // Hoisted State to persist across tab switches
+        var isProcessing by remember { mutableStateOf(false) }
+        var transcriptOut by remember { mutableStateOf("") }
+        var summaryOut by remember { mutableStateOf("") }
+        var statusText by remember { mutableStateOf("Ready to transcribe") }
 
         Row(modifier = Modifier.fillMaxSize().background(ThemeColors.Background)) {
             // Sidebar
@@ -184,8 +195,16 @@ fun AppUI(controller: AppController, coroutineScope: CoroutineScope) {
             ) {
                 Crossfade(targetState = currentTab) { tab ->
                     when (tab) {
-                        "Studio" -> StudioView(controller, coroutineScope)
+                        "Studio" -> StudioView(
+                            controller, 
+                            coroutineScope,
+                            isProcessing, { isProcessing = it },
+                            transcriptOut, { transcriptOut = it },
+                            summaryOut, { summaryOut = it },
+                            statusText, { statusText = it }
+                        )
                         "Models" -> ModelsView(controller)
+                        "Files" -> FilesView(coroutineScope)
                     }
                 }
             }
@@ -229,6 +248,8 @@ fun Sidebar(currentTab: String, onTabSelected: (String) -> Unit) {
         
         NavButton("🏠", "Studio", currentTab == "Studio") { onTabSelected("Studio") }
         Spacer(modifier = Modifier.height(8.dp))
+        NavButton("📁", "Files", currentTab == "Files") { onTabSelected("Files") }
+        Spacer(modifier = Modifier.height(8.dp))
         NavButton("🧠", "Models", currentTab == "Models") { onTabSelected("Models") }
     }
 }
@@ -263,25 +284,34 @@ fun NavButton(icon: String, text: String, isSelected: Boolean, onClick: () -> Un
 }
 
 @Composable
-fun StudioView(controller: AppController, coroutineScope: CoroutineScope) {
-    var audioPath by remember { mutableStateOf("") }
-    var language by remember { mutableStateOf("pt") }
-    var outputLang by remember { mutableStateOf("pt") }
-    var exportDir by remember { mutableStateOf("~/Desktop/Brief_Notes") }
+fun StudioView(
+    controller: AppController, 
+    coroutineScope: CoroutineScope,
+    isProcessing: Boolean, setIsProcessing: (Boolean) -> Unit,
+    transcriptOut: String, setTranscriptOut: (String) -> Unit,
+    summaryOut: String, setSummaryOut: (String) -> Unit,
+    statusText: String, setStatusText: (String) -> Unit
+) {
+    var audioPath by remember { mutableStateOf(Preferences.get("audioPath", "")) }
+    var language by remember { mutableStateOf(Preferences.get("language", "pt")) }
+    var outputLang by remember { mutableStateOf(Preferences.get("outputLang", "pt")) }
+    var exportDir by remember { mutableStateOf(Preferences.get("exportDir", "~/Desktop/Brief_Notes")) }
     
-    var subjects by remember { mutableStateOf(controller.getSubjects(exportDir)) }
     var selectedSubject by remember { mutableStateOf("(Root)") }
 
     val whisperBackends = listOf("Mac Native (MLX)", "Windows/Linux (Cross)")
     val llmBackends = listOf("Mac Native (MLX)", "Windows/Linux (GGUF)", "Ollama (Local API)")
     val promptTypes = listOf("Short Summary", "Detailed Notes", "Exam Q&A")
 
-    var whisperBackend by remember { mutableStateOf(whisperBackends[0]) }
-    var llmBackend by remember { mutableStateOf(llmBackends[0]) }
+    var whisperBackend by remember { mutableStateOf(Preferences.get("whisperBackend", whisperBackends[0])) }
+    var llmBackend by remember { mutableStateOf(Preferences.get("llmBackend", llmBackends[0])) }
     
     var ollamaModels by remember { mutableStateOf(listOf<String>()) }
+    var downloadedModels by remember { mutableStateOf(listOf<String>()) }
+    
     LaunchedEffect(Unit) {
         ollamaModels = withContext(Dispatchers.IO) { Models.fetchOllamaModels() }
+        downloadedModels = withContext(Dispatchers.IO) { controller.getDownloadedModels().first }
     }
 
     val whisperModels = if (whisperBackend == "Mac Native (MLX)") Models.WHISPER_MLX_MODELS else Models.WHISPER_CROSS_MODELS
@@ -291,9 +321,19 @@ fun StudioView(controller: AppController, coroutineScope: CoroutineScope) {
         else -> ollamaModels.ifEmpty { listOf("llama3.1", "gemma2") }
     }
 
-    var whisperModel by remember { mutableStateOf(whisperModels.firstOrNull() ?: "") }
-    var llmModel by remember { mutableStateOf(llmModels.firstOrNull() ?: "") }
-    var promptType by remember { mutableStateOf(promptTypes[1]) }
+    var whisperModel by remember { mutableStateOf(Preferences.get("whisperModel", whisperModels.firstOrNull() ?: "")) }
+    var llmModel by remember { mutableStateOf(Preferences.get("llmModel", llmModels.firstOrNull() ?: "")) }
+    var promptType by remember { mutableStateOf(Preferences.get("promptType", promptTypes[1])) }
+
+    LaunchedEffect(audioPath) { Preferences.set("audioPath", audioPath) }
+    LaunchedEffect(language) { Preferences.set("language", language) }
+    LaunchedEffect(outputLang) { Preferences.set("outputLang", outputLang) }
+    LaunchedEffect(exportDir) { Preferences.set("exportDir", exportDir) }
+    LaunchedEffect(promptType) { Preferences.set("promptType", promptType) }
+    LaunchedEffect(whisperBackend) { Preferences.set("whisperBackend", whisperBackend) }
+    LaunchedEffect(llmBackend) { Preferences.set("llmBackend", llmBackend) }
+    LaunchedEffect(whisperModel) { if (whisperModel.isNotEmpty()) Preferences.set("whisperModel", whisperModel) }
+    LaunchedEffect(llmModel) { if (llmModel.isNotEmpty()) Preferences.set("llmModel", llmModel) }
 
     LaunchedEffect(whisperBackend) {
         if (!whisperModels.contains(whisperModel)) whisperModel = whisperModels.firstOrNull() ?: ""
@@ -301,10 +341,6 @@ fun StudioView(controller: AppController, coroutineScope: CoroutineScope) {
     LaunchedEffect(llmBackend, ollamaModels) {
         if (!llmModels.contains(llmModel)) llmModel = llmModels.firstOrNull() ?: ""
     }
-
-    var transcriptOut by remember { mutableStateOf("") }
-    var summaryOut by remember { mutableStateOf("") }
-    var statusText by remember { mutableStateOf("Ready to transcribe") }
 
     val scrollState = rememberScrollState()
 
@@ -339,14 +375,16 @@ fun StudioView(controller: AppController, coroutineScope: CoroutineScope) {
                         value = audioPath,
                         onValueChange = { audioPath = it },
                         isDirectory = false,
-                        modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
+                        enabled = !isProcessing
                     )
                     FilePickerInput(
                         label = "Export Directory",
                         value = exportDir,
                         onValueChange = { exportDir = it },
                         isDirectory = true,
-                        modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
+                        enabled = !isProcessing
                     )
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.padding(bottom = 12.dp)) {
                         val commonLangs = listOf("en", "pt", "es", "fr", "de", "it", "nl")
@@ -355,14 +393,16 @@ fun StudioView(controller: AppController, coroutineScope: CoroutineScope) {
                             options = commonLangs,
                             selectedOption = language,
                             onOptionSelected = { language = it },
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
+                            enabled = !isProcessing
                         )
                         ModernDropdown(
                             label = "Notes Language",
                             options = commonLangs,
                             selectedOption = outputLang,
                             onOptionSelected = { outputLang = it },
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
+                            enabled = !isProcessing
                         )
                     }
                     ModernDropdown(
@@ -370,7 +410,8 @@ fun StudioView(controller: AppController, coroutineScope: CoroutineScope) {
                         options = promptTypes,
                         selectedOption = promptType,
                         onOptionSelected = { promptType = it },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !isProcessing
                     )
                 }
             }
@@ -385,14 +426,17 @@ fun StudioView(controller: AppController, coroutineScope: CoroutineScope) {
                             options = whisperBackends,
                             selectedOption = whisperBackend,
                             onOptionSelected = { whisperBackend = it },
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
+                            enabled = !isProcessing
                         )
                         ModernDropdown(
                             label = "Transcription Model",
                             options = whisperModels,
                             selectedOption = whisperModel,
                             onOptionSelected = { whisperModel = it },
-                            modifier = Modifier.weight(1.5f)
+                            modifier = Modifier.weight(1.5f),
+                            enabled = !isProcessing,
+                            optionLabel = { if (downloadedModels.contains(it)) "💾 $it" else "☁️ $it" }
                         )
                     }
 
@@ -402,14 +446,17 @@ fun StudioView(controller: AppController, coroutineScope: CoroutineScope) {
                             options = llmBackends,
                             selectedOption = llmBackend,
                             onOptionSelected = { llmBackend = it },
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
+                            enabled = !isProcessing
                         )
                         ModernDropdown(
                             label = "Summary Model",
                             options = llmModels,
                             selectedOption = llmModel,
                             onOptionSelected = { llmModel = it },
-                            modifier = Modifier.weight(1.5f)
+                            modifier = Modifier.weight(1.5f),
+                            enabled = !isProcessing,
+                            optionLabel = { if (llmBackend.contains("Ollama")) "🦙 $it" else if (downloadedModels.contains(it)) "💾 $it" else "☁️ $it" }
                         )
                     }
                 }
@@ -421,31 +468,48 @@ fun StudioView(controller: AppController, coroutineScope: CoroutineScope) {
         // Process Button
         val interactionSource = remember { MutableInteractionSource() }
         val isHovered by interactionSource.collectIsHoveredAsState()
-        
-        Button(
-            onClick = {
-                controller.processLecture(
-                    audioPath, language, outputLang, selectedSubject, whisperBackend, whisperModel, llmBackend, llmModel, promptType, exportDir,
-                    onTranscriptUpdate = { transcriptOut = it },
-                    onNotesUpdate = { summaryOut = it },
-                    onStatusUpdate = { statusText = it }
-                )
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(64.dp)
-                .shadow(12.dp, RoundedCornerShape(16.dp), spotColor = ThemeColors.Primary.copy(alpha = 0.5f)),
-            shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent),
-            contentPadding = PaddingValues(0.dp)
-        ) {
-            Box(
+
+        if (isProcessing) {
+            Button(
+                onClick = { controller.cancelProcessing(setStatusText) },
                 modifier = Modifier
-                    .fillMaxSize()
-                    .background(ThemeColors.GradientPrimary),
-                contentAlignment = Alignment.Center
+                    .fillMaxWidth()
+                    .height(64.dp)
+                    .shadow(12.dp, RoundedCornerShape(16.dp), spotColor = Color(0xFFEF4444).copy(alpha = 0.5f)),
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFEF4444)),
+                contentPadding = PaddingValues(0.dp)
             ) {
-                Text("🚀 Start Processing", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                Text("🛑 Cancel Processing", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
+            }
+        } else {
+            Button(
+                onClick = {
+                    setIsProcessing(true)
+                    controller.processLecture(
+                        audioPath, language, outputLang, selectedSubject, whisperBackend, whisperModel, llmBackend, llmModel, promptType, exportDir,
+                        onTranscriptUpdate = { setTranscriptOut(it) },
+                        onNotesUpdate = { setSummaryOut(it) },
+                        onStatusUpdate = { setStatusText(it) },
+                        onFinished = { setIsProcessing(false) }
+                    )
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(64.dp)
+                    .shadow(12.dp, RoundedCornerShape(16.dp), spotColor = ThemeColors.Primary.copy(alpha = 0.5f)),
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent),
+                contentPadding = PaddingValues(0.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(ThemeColors.GradientPrimary),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("🚀 Start Processing", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                }
             }
         }
 
@@ -457,7 +521,8 @@ fun StudioView(controller: AppController, coroutineScope: CoroutineScope) {
                 Text("Transcript", color = ThemeColors.TextMuted, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 8.dp))
                 OutlinedTextField(
                     value = transcriptOut,
-                    onValueChange = { transcriptOut = it },
+                    onValueChange = { setTranscriptOut(it) },
+                    readOnly = true,
                     modifier = Modifier.fillMaxSize(),
                     colors = modernTextFieldColors(),
                     shape = RoundedCornerShape(12.dp)
@@ -467,7 +532,8 @@ fun StudioView(controller: AppController, coroutineScope: CoroutineScope) {
                 Text("Study Notes", color = ThemeColors.TextMuted, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 8.dp))
                 OutlinedTextField(
                     value = summaryOut,
-                    onValueChange = { summaryOut = it },
+                    onValueChange = { setSummaryOut(it) },
+                    readOnly = true,
                     modifier = Modifier.fillMaxSize(),
                     colors = modernTextFieldColors(),
                     shape = RoundedCornerShape(12.dp)
@@ -578,6 +644,119 @@ fun GlassCard(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
             .padding(24.dp)
     ) {
         content()
+    }
+}
+
+@Composable
+fun FilesView(coroutineScope: CoroutineScope) {
+    val exportDirPath = Preferences.get("exportDir", "~/Desktop/Brief_Notes").replace("~", System.getProperty("user.home"))
+    val rootDir = File(exportDirPath)
+    
+    var files by remember { mutableStateOf(listOf<File>()) }
+    var selectedFile by remember { mutableStateOf<File?>(null) }
+    var fileContent by remember { mutableStateOf("") }
+    
+    // Refresh files list
+    fun loadFiles() {
+        if (rootDir.exists()) {
+            files = rootDir.walkTopDown().filter { it.isFile && it.extension == "md" }.toList().sortedByDescending { it.lastModified() }
+        }
+    }
+    
+    LaunchedEffect(Unit) { loadFiles() }
+
+    Row(modifier = Modifier.fillMaxSize().padding(16.dp), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+        // Left Panel: File List
+        GlassCard(modifier = Modifier.width(340.dp).fillMaxHeight()) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                Row(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                    Text("My Notes", fontWeight = FontWeight.Bold, color = ThemeColors.TextMain, fontSize = 20.sp)
+                    Button(
+                        onClick = {
+                            try {
+                                val os = System.getProperty("os.name").lowercase()
+                                val path = rootDir.absolutePath
+                                if (os.contains("mac")) {
+                                    Runtime.getRuntime().exec(arrayOf("open", "obsidian://open?path=$path"))
+                                } else if (os.contains("win")) {
+                                    Runtime.getRuntime().exec(arrayOf("cmd", "/c", "start", "obsidian://open?path=$path"))
+                                } else {
+                                    Runtime.getRuntime().exec(arrayOf("xdg-open", "obsidian://open?path=$path"))
+                                }
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = ThemeColors.Primary),
+                        shape = RoundedCornerShape(8.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                    ) {
+                        Text("Open in Obsidian", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+                
+                if (files.isEmpty()) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text("No markdown files found in export directory.", color = ThemeColors.TextMuted)
+                    }
+                } else {
+                    val scrollState = rememberScrollState()
+                    Column(modifier = Modifier.fillMaxSize().verticalScroll(scrollState)) {
+                        files.forEach { file ->
+                            val isSelected = selectedFile == file
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(if (isSelected) ThemeColors.Primary.copy(alpha = 0.2f) else Color.Transparent)
+                                    .clickable {
+                                        selectedFile = file
+                                        fileContent = file.readText()
+                                    }
+                                    .padding(12.dp)
+                            ) {
+                                Text(if (file.name.startsWith("notes_")) "📝" else "🎙️", modifier = Modifier.padding(end = 8.dp))
+                                Column {
+                                    Text(file.name, color = ThemeColors.TextMain, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                    Text(file.parentFile.name, color = ThemeColors.TextMuted, fontSize = 11.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Right Panel: Editor
+        GlassCard(modifier = Modifier.weight(2f).fillMaxHeight()) {
+            if (selectedFile == null) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("Select a file to edit", color = ThemeColors.TextMuted)
+                }
+            } else {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    Row(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                        Text(selectedFile!!.name, fontWeight = FontWeight.Bold, color = ThemeColors.TextMain, fontSize = 18.sp)
+                    }
+                    OutlinedTextField(
+                        value = fileContent,
+                        onValueChange = { newText ->
+                            fileContent = newText
+                            coroutineScope.launch(Dispatchers.IO) {
+                                try {
+                                    selectedFile?.writeText(newText)
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                }
+                            }
+                        },
+                        modifier = Modifier.fillMaxSize(),
+                        colors = modernTextFieldColors(),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                }
+            }
+        }
     }
 }
 

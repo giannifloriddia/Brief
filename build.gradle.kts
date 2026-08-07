@@ -23,6 +23,16 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
 }
 
+val preparePythonResources by tasks.registering(Copy::class) {
+    from("legacy_python") {
+        into("legacy_python")
+    }
+    from("venv") {
+        into("venv")
+    }
+    into(layout.buildDirectory.dir("appResources"))
+}
+
 compose.desktop {
     application {
         mainClass = "brief.MainKt"
@@ -32,6 +42,11 @@ compose.desktop {
             macOS {
                 bundleID = "com.brief.app"
             }
+            appResourcesRootDir.set(layout.buildDirectory.dir("appResources"))
         }
     }
+}
+
+tasks.matching { it.name.startsWith("package") }.configureEach {
+    dependsOn(preparePythonResources)
 }

@@ -4,15 +4,22 @@ import brief.models.Engine
 import brief.models.Models
 import brief.models.NotesResult
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
+import kotlinx.coroutines.Job
+
 class AppController(private val coroutineScope: CoroutineScope) {
+
+    private var activeJob: Job? = null
+
+    fun cancelProcessing(onStatusUpdate: (String) -> Unit) {
+        activeJob?.cancel()
+        Engine.cancel()
+        onStatusUpdate("❌ Cancelled by User.")
+    }
 
     fun processLecture(
         audioPath: String,
@@ -27,14 +34,16 @@ class AppController(private val coroutineScope: CoroutineScope) {
         exportDir: String,
         onTranscriptUpdate: (String) -> Unit,
         onNotesUpdate: (String) -> Unit,
-        onStatusUpdate: (String) -> Unit
+        onStatusUpdate: (String) -> Unit,
+        onFinished: () -> Unit
     ) {
         if (audioPath.isBlank()) {
             onTranscriptUpdate("⚠️ Please upload an audio file first.")
+            onFinished()
             return
         }
 
-        coroutineScope.launch {
+        activeJob = coroutineScope.launch {
             try {
                 onStatusUpdate("🎙️ Initializing Whisper Model...")
                 onTranscriptUpdate("🎙️ Processing audio (transcribing)...")
@@ -82,7 +91,7 @@ class AppController(private val coroutineScope: CoroutineScope) {
 
                 File(exportPath, transcriptFilename).writeText("# Transcript: $aiFilename\n\n$fullTranscript")
                 
-                val obsidianLink = "\n\n---\n## 📎 Source Material\n- **Transcript**: [[${transcriptFilename.replace(".md", "")}]]\n- **File**: [$transcriptFilename](./$transcriptFilename)"
+                val obsidianLink = "\n\n---\n## 📎 Source Material\n- **Transcript**: [[${transcriptFilename.replace(".md", "")}]]"
                 val combinedNotes = finalNotes + obsidianLink
 
                 File(exportPath, notesFilename).writeText(combinedNotes)
@@ -91,9 +100,15 @@ class AppController(private val coroutineScope: CoroutineScope) {
                 onNotesUpdate(combinedNotes)
 
             } catch (e: Exception) {
-                onTranscriptUpdate("Error: ${e.message}")
-                onNotesUpdate("❌ Cancelled.")
-                onStatusUpdate("❌ Failed.")
+                if (e is kotlinx.coroutines.CancellationException) {
+                    onStatusUpdate("❌ Cancelled by User.")
+                } else {
+                    onTranscriptUpdate("Error: ${e.message}")
+                    onNotesUpdate("❌ Cancelled.")
+                    onStatusUpdate("❌ Failed.")
+                }
+            } finally {
+                onFinished()
             }
         }
     }
