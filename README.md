@@ -2,6 +2,10 @@
 
 An open-source, fully local lecture transcription app for university students, professors, and researchers.
 
+<p align="center">
+  <img src="Screenshot%202026-08-08%20at%2015.34.45.png" alt="Main Screen" width="2784">
+</p>
+
 ## 🌟 Product Vision
 
 Brief is a cross-platform desktop and mobile app focused on turning long university lectures into clean transcripts and useful study summaries, without sending data to the cloud. 
