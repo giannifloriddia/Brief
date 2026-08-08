@@ -47,6 +47,6 @@ compose.desktop {
     }
 }
 
-tasks.matching { it.name.startsWith("package") }.configureEach {
+tasks.matching { it.name == "prepareAppResources" || it.name.startsWith("package") }.configureEach {
     dependsOn(preparePythonResources)
 }
