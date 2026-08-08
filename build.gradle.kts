@@ -23,7 +23,7 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
 }
 
-val preparePythonResources by tasks.registering(Copy::class) {
+val preparePythonResources = tasks.register<Copy>("preparePythonResources") {
     from("legacy_python") {
         into("legacy_python")
     }
@@ -41,8 +41,13 @@ compose.desktop {
             packageName = "Brief"
             macOS {
                 bundleID = "com.brief.app"
+                iconFile.set(project.file("src/main/resources/logo.icns"))
             }
             appResourcesRootDir.set(layout.buildDirectory.dir("appResources"))
+            
+            buildTypes.release.proguard {
+                isEnabled.set(false)
+            }
         }
     }
 }

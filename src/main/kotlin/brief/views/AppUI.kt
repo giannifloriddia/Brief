@@ -5,6 +5,11 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.Image
+import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.graphics.toComposeImageBitmap
+import org.jetbrains.skia.Image
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
@@ -222,7 +227,12 @@ fun Sidebar(currentTab: String, onTabSelected: (String) -> Unit) {
             .border(1.dp, ThemeColors.Border)
             .padding(28.dp)
     ) {
-        // Logo Area
+        val logoPainter = remember {
+            val logoBytes = Thread.currentThread().contextClassLoader.getResourceAsStream("logo.png")?.readAllBytes()
+            BitmapPainter(Image.makeFromEncoded(logoBytes!!).toComposeImageBitmap())
+        }
+        
+        // App Header
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(bottom = 48.dp)
@@ -230,11 +240,16 @@ fun Sidebar(currentTab: String, onTabSelected: (String) -> Unit) {
             Box(
                 modifier = Modifier
                     .size(48.dp)
-                    .background(ThemeColors.GradientPrimary, RoundedCornerShape(12.dp))
+                    .clip(RoundedCornerShape(12.dp))
                     .shadow(8.dp, RoundedCornerShape(12.dp), spotColor = ThemeColors.Primary),
                 contentAlignment = Alignment.Center
             ) {
-                Text("🧠", fontSize = 24.sp)
+                Image(
+                    painter = logoPainter,
+                    contentDescription = "Brief Logo",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
             }
             Spacer(modifier = Modifier.width(16.dp))
             Column {
