@@ -23,22 +23,15 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
 }
 
-val preparePythonResources = tasks.register<Copy>("preparePythonResources") {
-    description = "Python venv resources"
-    from("python_engine") {
-        into("python_engine")
-    }
-    from("venv") {
-        into("venv")
-    }
-    into(layout.buildDirectory.dir("appResources"))
-}
-
 compose.desktop {
     application {
         mainClass = "brief.MainKt"
         nativeDistributions {
-            targetFormats(org.jetbrains.compose.desktop.application.dsl.TargetFormat.Dmg, org.jetbrains.compose.desktop.application.dsl.TargetFormat.Msi, org.jetbrains.compose.desktop.application.dsl.TargetFormat.Deb)
+            targetFormats(
+                org.jetbrains.compose.desktop.application.dsl.TargetFormat.Dmg,
+                org.jetbrains.compose.desktop.application.dsl.TargetFormat.Msi,
+                org.jetbrains.compose.desktop.application.dsl.TargetFormat.Deb
+            )
             packageName = "Brief"
             macOS {
                 bundleID = "com.brief.app"
@@ -51,8 +44,4 @@ compose.desktop {
             }
         }
     }
-}
-
-tasks.matching { it.name == "prepareAppResources" || it.name.startsWith("package") }.configureEach {
-    dependsOn(preparePythonResources)
 }

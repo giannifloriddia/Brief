@@ -49,14 +49,17 @@ object Engine {
     }
 
     fun transcribeAudio(audioPath: String, language: String, backend: String, modelId: String): Flow<String> = flow {
-        val baseDir = getBaseDir()
-        val pythonExe = getPythonExecutable()
-        val scriptPath = File(baseDir, "python_engine/bridge.py").absolutePath
+        // Example inside Engine.kt[cite: 1]
+        val os = System.getProperty("os.name").lowercase()
+        val executableName = if (os.contains("win")) "python_engine.exe" else "python_engine"
 
-        val processBuilder = ProcessBuilder(pythonExe, scriptPath, "transcribe", audioPath, language, backend, modelId)
-        processBuilder.redirectErrorStream(true) // Merge stderr into stdout so we don't block
+        // Resolve path to the compiled Python executable embedded in resources[cite: 1]
+        val pythonExecutablePath = File(
+            Engine::class.java.protectionDomain.codeSource.location.toURI()
+        ).parentFile.resolve("resources/python_engine/$executableName")
 
-        val process = withContext(Dispatchers.IO) { processBuilder.start() }
+        val processBuilder = ProcessBuilder(pythonExecutablePath.absolutePath)
+        val process = processBuilder.start()
         currentProcess = process
 
         val reader = BufferedReader(InputStreamReader(process.inputStream))
@@ -75,6 +78,7 @@ object Engine {
             throw Exception("Transcription process exited with code $exitCode")
         }
     }
+        .flowOn(Dispatchers.IO)
 
     fun generateNotes(
         transcript: String,
