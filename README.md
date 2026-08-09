@@ -56,14 +56,14 @@ Brief relies on a Python bridge for local MLX and Whisper inference. You **must*
 ```bash
 python3 -m venv venv
 source venv/bin/activate
-pip install -r legacy_python/requirements.txt
+pip install -r python_engine/requirements.txt
 ```
 
 **Windows:**
 ```powershell
 python -m venv venv
 .\venv\Scripts\activate
-pip install -r legacy_python/requirements.txt
+pip install -r python_engine/requirements.txt
 ```
 
 ### 3. Run the App Locally (Development)

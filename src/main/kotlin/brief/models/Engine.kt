@@ -21,7 +21,7 @@ object Engine {
         val composeResourcesDir = System.getProperty("compose.application.resources.dir")
         if (composeResourcesDir != null) {
             val resDir = File(composeResourcesDir)
-            if (File(resDir, "legacy_python/bridge.py").exists()) {
+            if (File(resDir, "python_engine/bridge.py").exists()) {
                 return resDir
             }
         }
@@ -32,7 +32,7 @@ object Engine {
         val baseDir = getBaseDir()
         val rootVenvPython = File(baseDir, "venv/bin/python")
         val rootVenvPython3 = File(baseDir, "venv/bin/python3")
-        val legacyVenvPython = File(baseDir, "legacy_python/venv/bin/python")
+        val legacyVenvPython = File(baseDir, "python_engine/venv/bin/python")
         return when {
             rootVenvPython.exists() -> rootVenvPython.absolutePath
             rootVenvPython3.exists() -> rootVenvPython3.absolutePath
@@ -51,7 +51,7 @@ object Engine {
     fun transcribeAudio(audioPath: String, language: String, backend: String, modelId: String): Flow<String> = flow {
         val baseDir = getBaseDir()
         val pythonExe = getPythonExecutable()
-        val scriptPath = File(baseDir, "legacy_python/bridge.py").absolutePath
+        val scriptPath = File(baseDir, "python_engine/bridge.py").absolutePath
 
         val processBuilder = ProcessBuilder(pythonExe, scriptPath, "transcribe", audioPath, language, backend, modelId)
         processBuilder.redirectErrorStream(true) // Merge stderr into stdout so we don't block
@@ -167,7 +167,7 @@ $transcript"""
 
             val baseDir = getBaseDir()
             val pythonExe = getPythonExecutable()
-            val scriptPath = File(baseDir, "legacy_python/bridge.py").absolutePath
+            val scriptPath = File(baseDir, "python_engine/bridge.py").absolutePath
 
             val processBuilder = ProcessBuilder(
                 pythonExe,

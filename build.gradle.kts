@@ -24,8 +24,9 @@ dependencies {
 }
 
 val preparePythonResources = tasks.register<Copy>("preparePythonResources") {
-    from("legacy_python") {
-        into("legacy_python")
+    description = "Python venv resources"
+    from("python_engine") {
+        into("python_engine")
     }
     from("venv") {
         into("venv")
