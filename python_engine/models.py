@@ -12,7 +12,8 @@ if platform.system() == "Darwin" and platform.machine() == "arm64":
         import mlx_whisper
         from mlx_lm import load, generate
         HAS_MLX = True
-    except ImportError:
+    except ImportError as e:
+        print(f"MLX import failed: {e}")
         pass
 
 # --- MODEL LISTS ---

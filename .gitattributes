@@ -1,0 +1,2 @@
+python_engine/build/ filter=lfs diff=lfs merge=lfs -text
+src/resources/python_engine/ filter=lfs diff=lfs merge=lfs -text

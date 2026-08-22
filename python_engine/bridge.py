@@ -2,6 +2,13 @@ import sys
 import json
 import os
 
+try:
+    import imageio_ffmpeg
+    ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
+    os.environ["PATH"] = os.path.dirname(ffmpeg_exe) + os.pathsep + os.environ.get("PATH", "")
+except ImportError:
+    os.environ["PATH"] = os.environ.get("PATH", "") + os.pathsep + "/opt/homebrew/bin" + os.pathsep + "/usr/local/bin"
+
 # Add the directory to the path so we can import models
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import models
