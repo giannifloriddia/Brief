@@ -44,7 +44,7 @@ object Models {
         } catch (e: Exception) {
             // Fallback
         }
-        return listOf("llama3.1", "gemma2", "phi3", "mistral")
+        return listOf("Please open Ollama and restart Brief")
     }
 
     fun getSubjects(exportDir: String): List<String> {
