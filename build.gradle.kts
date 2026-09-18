@@ -23,6 +23,21 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
 }
 
+// --- Copy PyInstaller bridge binary into Compose Desktop app resources ---
+val copyPythonEngine = tasks.register<Copy>("copyPythonEngine") {
+    from(project.file("python_engine/dist/bridge"))
+    into(layout.buildDirectory.dir("appResources/macos-arm64/python_engine"))
+}
+
+// Ensure the copy runs before any packaging or resource preparation task
+tasks.matching {
+    it.name.startsWith("package") ||
+    it.name.startsWith("createDistributable") ||
+    it.name == "prepareAppResources"
+}.configureEach {
+    dependsOn(copyPythonEngine)
+}
+
 compose.desktop {
     application {
         mainClass = "brief.MainKt"

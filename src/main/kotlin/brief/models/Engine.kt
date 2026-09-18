@@ -19,43 +19,40 @@ object Engine {
 
     private fun getPythonExecutable(): List<String> {
         val os = System.getProperty("os.name").lowercase()
-        val executableName = if (os.contains("win")) "python_engine.exe" else "python_engine"
+        val executableName = if (os.contains("win")) "bridge.exe" else "bridge"
 
-        val extractedDir = File(System.getProperty("java.io.tmpdir"), "brief_python_engine")
-        val targetExecutable = File(extractedDir, executableName)
-
-        // 1. If we already extracted it in a previous run, use it!
-        if (targetExecutable.exists()) {
-            targetExecutable.setExecutable(true)
-            return listOf(targetExecutable.absolutePath)
-        }
-
-        // 2. Fallback for local development (if running uncompiled via gradlew run)
+        // 1. Local development: use the venv + bridge.py directly
+        //    The venv only exists in the project directory, never inside the installed app,
+        //    so this check is safe and gives the most reliable dev experience.
         val localVenv = File(System.getProperty("user.dir"), "venv/bin/python")
         if (localVenv.exists()) {
             val bridgePath = File(System.getProperty("user.dir"), "python_engine/bridge.py")
             return listOf(localVenv.absolutePath, bridgePath.absolutePath)
         }
 
-        // 3. Extract the binary from the packaged resources to the temp folder
-        try {
-            extractedDir.mkdirs()
-            val resourceStream = Engine::class.java.getResourceAsStream("/python_engine/$executableName")
-
-            if (resourceStream != null) {
-                targetExecutable.outputStream().use { fileOut ->
-                    resourceStream.copyTo(fileOut)
-                }
-                targetExecutable.setExecutable(true)
-                return listOf(targetExecutable.absolutePath)
-            } else {
-                println("WARNING: Could not find /python_engine/$executableName in resources!")
+        // 2. Compose Desktop app resources (used in native distributions)
+        //    compose.application.resources.dir points to the resources/ folder inside the app bundle
+        val appResourcesDir = System.getProperty("compose.application.resources.dir")
+        if (appResourcesDir != null) {
+            val bundledExecutable = File(appResourcesDir, "python_engine/$executableName")
+            if (bundledExecutable.exists()) {
+                bundledExecutable.setExecutable(true)
+                return listOf(bundledExecutable.absolutePath)
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
 
-        return listOf("python3") // Absolute fallback
+        // 3. Last resort: try the PyInstaller dist output directly (dev without venv)
+        val distBridge = File(System.getProperty("user.dir"), "python_engine/dist/bridge/$executableName")
+        if (distBridge.exists()) {
+            distBridge.setExecutable(true)
+            return listOf(distBridge.absolutePath)
+        }
+
+        throw IllegalStateException(
+            "Could not find the Python engine binary. " +
+            "For development, ensure the venv is set up. " +
+            "For distribution, run: cd python_engine && pyinstaller bridge.spec && then rebuild the app."
+        )
     }
 
     private var currentProcess: Process? = null
@@ -85,8 +82,11 @@ object Engine {
 
         val reader = BufferedReader(InputStreamReader(process.inputStream))
         var line: String?
+        val lastLines = ArrayDeque<String>(10)
         while (withContext(Dispatchers.IO) { reader.readLine().also { line = it } } != null) {
             val text = line!!
+            lastLines.addLast(text)
+            if (lastLines.size > 10) lastLines.removeFirst()
             if (text.startsWith("ERROR: ")) {
                 throw Exception(text.substring(7))
             }
@@ -96,7 +96,8 @@ object Engine {
         val exitCode = withContext(Dispatchers.IO) { process.waitFor() }
         currentProcess = null
         if (exitCode != 0) {
-            throw Exception("Transcription process exited with code $exitCode")
+            val output = lastLines.joinToString("\n")
+            throw Exception("Transcription process exited with code $exitCode.\nOutput:\n$output")
         }
     }.flowOn(Dispatchers.IO)
 
@@ -206,8 +207,11 @@ $transcript"""
         val reader = BufferedReader(InputStreamReader(process.inputStream))
 
         var line: String?
+        val lastLines = ArrayDeque<String>(10)
         while (withContext(Dispatchers.IO) { reader.readLine().also { line = it } } != null) {
             val text = line!!
+            lastLines.addLast(text)
+            if (lastLines.size > 10) lastLines.removeFirst()
             if (text.startsWith("ERROR: ")) {
                 withContext(Dispatchers.IO) { tempTranscript.delete() }
                 throw Exception(text.substring(7))
@@ -227,7 +231,8 @@ $transcript"""
         currentProcess = null
         withContext(Dispatchers.IO) { tempTranscript.delete() }
         if (exitCode != 0) {
-            throw Exception("Generation process exited with code $exitCode")
+            val output = lastLines.joinToString("\n")
+            throw Exception("Generation process exited with code $exitCode.\nOutput:\n$output")
         }
     }.flowOn(Dispatchers.IO)
 }

@@ -7,12 +7,18 @@ from huggingface_hub import hf_hub_download, HfApi
 
 # --- ENVIRONMENT CONFIG ---
 HAS_MLX = False
+mlx_whisper = None
+load = None
+generate = None
 if platform.system() == "Darwin" and platform.machine() == "arm64":
     try:
-        import mlx_whisper
-        from mlx_lm import load, generate
+        import mlx_whisper as _mlx_whisper
+        from mlx_lm import load as _load, generate as _generate
+        mlx_whisper = _mlx_whisper
+        load = _load
+        generate = _generate
         HAS_MLX = True
-    except ImportError as e:
+    except Exception as e:
         print(f"MLX import failed: {e}")
         pass
 
