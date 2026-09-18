@@ -13,7 +13,12 @@ fw_datas, fw_binaries, fw_hiddenimports = collect_all('faster_whisper')
 hf_datas, hf_binaries, hf_hiddenimports = collect_all('huggingface_hub')
 ff_datas, ff_binaries, ff_hiddenimports = collect_all('imageio_ffmpeg')
 
-all_datas = mlx_datas + mlx_whisper_datas + mlx_lm_datas + fw_datas + hf_datas + ff_datas
+import mlx
+import os
+mlx_metallib_path = os.path.join(mlx.__path__[0], 'lib', 'mlx.metallib')
+extra_datas = [(mlx_metallib_path, '.')] if os.path.exists(mlx_metallib_path) else []
+
+all_datas = mlx_datas + mlx_whisper_datas + mlx_lm_datas + fw_datas + hf_datas + ff_datas + extra_datas
 all_binaries = mlx_binaries + mlx_whisper_binaries + mlx_lm_binaries + fw_binaries + hf_binaries + ff_binaries
 all_hiddenimports = (
     mlx_hiddenimports + mlx_whisper_hiddenimports + mlx_lm_hiddenimports +
