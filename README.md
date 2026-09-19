@@ -1,9 +1,35 @@
-# Brief
+<p align="center">
+  <img src="src/main/resources/logo.png" alt="Brief Logo" width="128">
+</p>
 
-An open-source, fully local lecture transcription app for university students, professors, and researchers.
+<h1 align="center">Brief</h1>
 
 <p align="center">
-  <img src="Screenshot%202026-08-08%20at%2015.34.45.png" alt="Main Screen" width="2784">
+  <strong>An open-source, fully local lecture transcription & study notes app for university students, professors, and researchers.</strong>
+</p>
+
+<p align="center">
+  <a href="#-product-vision">Vision</a> •
+  <a href="#-core-principles">Principles</a> •
+  <a href="#-presentation-video">Demo Video</a> •
+  <a href="#-step-by-step-build-guide">Build Guide</a> •
+  <a href="#-license">License</a>
+</p>
+
+---
+
+## 🎬 Presentation Video
+
+<div align="center">
+  <video src="Brief%20Presentation.mp4" width="100%" controls poster="Screenshot%202026-08-08%20at%2015.34.45.png">
+    Your browser does not support playing HTML5 videos. <a href="Brief%20Presentation.mp4">Download Brief Presentation.mp4</a> to view.
+  </video>
+</div>
+
+<br>
+
+<p align="center">
+  <img src="Screenshot%202026-08-08%20at%2015.34.45.png" alt="Main Screen" width="100%">
 </p>
 
 ## 🌟 Product Vision
@@ -45,7 +71,7 @@ To build Brief from scratch, you will need the following installed on your machi
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/Brief.git
+git clone https://github.com/giannifloriddia/Brief.git
 cd Brief
 ```
 
