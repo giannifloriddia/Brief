@@ -62,6 +62,23 @@ object Engine {
         currentProcess = null
     }
 
+    /**
+     * Lines matching these patterns are diagnostic noise from Python's multiprocessing,
+     * tqdm progress bars, or PyInstaller internals. They must never be treated as
+     * transcript content or passed to the LLM for summarization.
+     */
+    private fun isNoiseLine(line: String): Boolean {
+        val l = line.trim()
+        return l.contains("resource_tracker:") ||
+               l.contains("UserWarning:") ||
+               l.contains("warnings.warn(") ||
+               l.startsWith("Traceback (most recent") ||
+               l.startsWith("  File \"") ||
+               // tqdm progress bars (e.g. "Fetching 4 files: 100%|██...")
+               (l.contains("%|") && l.contains("it/s")) ||
+               l.startsWith("Fetching") && l.contains("files:")
+    }
+
     fun transcribeAudio(audioPath: String, language: String, backend: String, modelId: String): Flow<String> = flow {
         // Use the unified executable extractor!
         val pythonExe = getPythonExecutable()
@@ -90,6 +107,8 @@ object Engine {
             if (text.startsWith("ERROR: ")) {
                 throw Exception(text.substring(7))
             }
+            // Skip diagnostic noise so it never becomes part of the transcript
+            if (isNoiseLine(text)) continue
             emit(text)
         }
 
@@ -222,7 +241,7 @@ $transcript"""
             } else if (text.startsWith("CHUNK:")) {
                 val rawText = text.substring(6).replace("\\n", "\n")
                 emit(rawText)
-            } else {
+            } else if (!isNoiseLine(text)) {
                 emit(text)
             }
         }
