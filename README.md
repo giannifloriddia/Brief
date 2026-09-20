@@ -20,11 +20,7 @@
 
 ## 🎬 Presentation Video
 
-<div align="center">
-  <video src="Brief%20Presentation.mp4" width="100%" controls poster="Screenshot%202026-08-08%20at%2015.34.45.png">
-    Your browser does not support playing HTML5 videos. <a href="Brief%20Presentation.mp4">Download Brief Presentation.mp4</a> to view.
-  </video>
-</div>
+[Presentation Video](https://github.com/giannifloriddia/Brief/issues/1#issue-5510536520)
 
 <br>
 
