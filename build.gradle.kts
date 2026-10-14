@@ -57,6 +57,8 @@ compose.desktop {
             buildTypes.release.proguard {
                 isEnabled.set(false)
             }
+
+            jvmArgs("--enable-native-access=ALL-UNNAMED")
         }
     }
 }
