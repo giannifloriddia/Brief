@@ -4,3 +4,4 @@ urllib3<2
 faster-whisper
 llama-cpp-python
 imageio-ffmpeg
+pyinstaller

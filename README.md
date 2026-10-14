@@ -71,8 +71,10 @@ git clone https://github.com/giannifloriddia/Brief.git
 cd Brief
 ```
 
-### 2. Setup the Python ML Engine (Required)
-Brief relies on a Python bridge for local MLX and Whisper inference. You **must** create a Python Virtual Environment at the root of the project before running.
+### 2. Setup the Python ML Engine (Automatic)
+Brief relies on a Python bridge for local MLX and Whisper inference. The `venv` and its dependencies are created **automatically** by Gradle the first time you run or package the app (via the `setupPythonEngineVenv` task).
+
+If you prefer to set it up manually (e.g., to iterate on the Python engine outside Gradle):
 
 **Mac / Linux:**
 ```bash
@@ -110,6 +112,16 @@ gradlew.bat packageDistributionForCurrentOS
 Once the build completes, your standalone installer (e.g., `Brief.dmg` on Mac or `Brief.msi` on Windows) will be located inside the `build/compose/binaries/main/` folder!
 
 **Good News:** The build system is now fully automated to bundle your localized Python environment directly into the generated installer. Your `.dmg` or `.exe` will be a true standalone application that you can distribute anywhere without requiring users to install Python!
+
+The packaging tasks automatically:
+1. Set up the `venv` and install `python_engine/requirements.txt` (first run only).
+2. Build the standalone `bridge` binary with PyInstaller (only when `python_engine` sources change).
+3. Copy it into the app resources bundled inside the installer.
+
+To skip the Python engine bundling (e.g., for a quick UI-only test build), run:
+```bash
+./gradlew packageDistributionForCurrentOS -Pbrief.skipPythonEngine=true
+```
 
 ---
 
